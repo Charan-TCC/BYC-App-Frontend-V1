@@ -126,7 +126,7 @@ export default function OnboardingPage() {
     };
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden animated-gradient">
+        <main className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden animated-gradient">
             {/* Background decoration with floating elements */}
             <div className="absolute inset-0 -z-10 overflow-hidden">
                 <div className="absolute top-20 left-1/4 w-72 h-72 bg-primary/15 rounded-full blur-3xl float" />
@@ -246,31 +246,31 @@ export default function OnboardingPage() {
                 {/* Step 4: Role Interests */}
                 {step === 4 && (
                     <>
-                        <CardHeader className="text-center pb-4">
-                            <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                                <Briefcase className="w-8 h-8 text-primary" />
+                        <CardHeader className="text-center pb-2">
+                            <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+                                <Briefcase className="w-6 h-6 text-primary" />
                             </div>
-                            <CardTitle className="text-2xl font-bold">
+                            <CardTitle className="text-xl font-bold">
                                 What roles interest you?
                             </CardTitle>
-                            <CardDescription className="text-base mt-2">
-                                Select one or more roles you&apos;d like to explore
+                            <CardDescription className="text-sm mt-1">
+                                Select one or more
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-2 pt-2">
                             {roleOptions.map((role) => {
                                 const isSelected = formData.interestedRoles.includes(role.id);
                                 return (
                                     <button
                                         key={role.id}
                                         onClick={() => toggleRole(role.id)}
-                                        className={`w-full p-4 rounded-lg border-2 text-left transition-all flex items-start gap-3 ${isSelected
+                                        className={`w-full p-3 rounded-lg border-2 text-left transition-all flex items-center gap-3 ${isSelected
                                             ? "border-primary bg-primary/5"
                                             : "border-border hover:border-primary/50 hover:bg-muted/50"
                                             }`}
                                     >
                                         <div
-                                            className={`p-2 rounded-lg ${isSelected ? "bg-primary/20" : "bg-muted"
+                                            className={`p-1.5 rounded-lg ${isSelected ? "bg-primary/20" : "bg-muted"
                                                 }`}
                                         >
                                             <role.icon
@@ -279,13 +279,10 @@ export default function OnboardingPage() {
                                             />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium">{role.name}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {role.description}
-                                            </p>
+                                            <p className="font-medium text-sm">{role.name}</p>
                                         </div>
                                         {isSelected && (
-                                            <Check className="w-5 h-5 text-primary shrink-0" />
+                                            <Check className="w-4 h-4 text-primary shrink-0" />
                                         )}
                                     </button>
                                 );

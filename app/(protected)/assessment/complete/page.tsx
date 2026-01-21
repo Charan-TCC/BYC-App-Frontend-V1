@@ -12,7 +12,6 @@ import {
     Brain,
     CheckCircle2,
     Code2,
-    Confetti,
     Home,
     PartyPopper,
     Sparkles,

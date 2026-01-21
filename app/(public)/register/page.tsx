@@ -78,7 +78,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden animated-gradient">
+        <main className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden animated-gradient">
             {/* Background decorations */}
             <div className="absolute inset-0 -z-10 overflow-hidden">
                 <div className="absolute top-20 left-1/4 w-72 h-72 bg-primary/20 rounded-full blur-3xl float" />
@@ -87,12 +87,12 @@ export default function RegisterPage() {
             <div className="absolute inset-0 -z-10 dot-pattern opacity-30" />
 
             {/* Logo */}
-            <div className="text-center mb-8">
-                <Link href="/" className="inline-flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 glow">
-                        <span className="text-white font-bold text-xl">B</span>
+            <div className="text-center mb-4">
+                <Link href="/" className="inline-flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 glow">
+                        <span className="text-white font-bold text-lg">B</span>
                     </div>
-                    <span className="text-3xl font-bold text-foreground tracking-tight">
+                    <span className="text-2xl font-bold text-foreground tracking-tight">
                         BuildYour<span className="text-gradient">.Careers</span>
                     </span>
                 </Link>
@@ -106,65 +106,51 @@ export default function RegisterPage() {
                 </CardHeader>
 
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Full Name */}
-                        <div className="space-y-2">
-                            <Label htmlFor="fullName">Full Name</Label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                <Input
-                                    id="fullName"
-                                    placeholder="John Doe"
-                                    className="pl-10"
-                                    value={formData.fullName}
-                                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                                />
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                        {/* Full Name & Email in row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                                <Label htmlFor="fullName" className="text-xs">Full Name</Label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                    <Input
+                                        id="fullName"
+                                        placeholder="John Doe"
+                                        className="pl-10 h-9"
+                                        value={formData.fullName}
+                                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                    />
+                                </div>
+                                {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
                             </div>
-                            {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
-                        </div>
 
-                        {/* Email */}
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="you@example.com"
-                                    className="pl-10"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-                            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-                        </div>
-
-                        {/* Phone */}
-                        <div className="space-y-2">
-                            <Label htmlFor="phone">Phone (Optional)</Label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                <Input
-                                    id="phone"
-                                    placeholder="+91 98765 43210"
-                                    className="pl-10"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                />
+                            <div className="space-y-1">
+                                <Label htmlFor="email" className="text-xs">Email</Label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder="you@example.com"
+                                        className="pl-10 h-9"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    />
+                                </div>
+                                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                             </div>
                         </div>
 
                         {/* Password */}
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
+                        <div className="space-y-1">
+                            <Label htmlFor="password" className="text-xs">Password</Label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="password"
                                     type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
-                                    className="pl-10 pr-10"
+                                    className="pl-10 pr-10 h-9"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
@@ -176,30 +162,18 @@ export default function RegisterPage() {
                                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
                             </div>
-                            {/* Password requirements */}
-                            {formData.password && (
-                                <div className="space-y-1 mt-2">
-                                    {passwordRequirements.map((req, i) => (
-                                        <div key={i} className={`flex items-center gap-2 text-xs ${req.test(formData.password) ? "text-accent" : "text-muted-foreground"
-                                            }`}>
-                                            <Check className={`w-3 h-3 ${req.test(formData.password) ? "opacity-100" : "opacity-30"}`} />
-                                            {req.label}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
                         </div>
 
                         {/* Confirm Password */}
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
+                        <div className="space-y-1">
+                            <Label htmlFor="confirmPassword" className="text-xs">Confirm Password</Label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="confirmPassword"
                                     type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
-                                    className="pl-10"
+                                    className="pl-10 h-9"
                                     value={formData.confirmPassword}
                                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                                 />
@@ -208,24 +182,20 @@ export default function RegisterPage() {
                         </div>
 
                         {/* Terms */}
-                        <div className="flex items-start gap-2">
+                        <div className="flex items-center gap-2">
                             <Checkbox
                                 id="terms"
                                 checked={agreeTerms}
                                 onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
-                                className="mt-1"
                             />
-                            <Label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed">
-                                I agree to the{" "}
-                                <Link href="/terms" className="text-primary underline">Terms of Service</Link>
-                                {" "}and{" "}
-                                <Link href="/privacy" className="text-primary underline">Privacy Policy</Link>
+                            <Label htmlFor="terms" className="text-xs text-muted-foreground">
+                                I agree to the <Link href="/terms" className="text-primary underline">Terms</Link> and <Link href="/privacy" className="text-primary underline">Privacy Policy</Link>
                             </Label>
                         </div>
                         {errors.terms && <p className="text-xs text-destructive">{errors.terms}</p>}
 
                         {/* Submit */}
-                        <Button type="submit" className="w-full h-12 text-base gap-2" disabled={isLoading}>
+                        <Button type="submit" className="w-full h-10 text-sm gap-2" disabled={isLoading}>
                             {isLoading ? (
                                 <>
                                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
