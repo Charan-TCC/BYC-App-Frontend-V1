@@ -4,78 +4,157 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/auth-context";
 import {
     ArrowRight,
-    Award,
-    BookOpen,
-    Briefcase,
-    Calendar,
-    CheckCircle2,
-    ChevronRight,
-    Clock,
-    Database,
-    GraduationCap,
-    Rocket,
-    Sparkles,
-    Star,
-    Target,
     Trophy,
+    Sparkles,
+    GraduationCap,
+    Briefcase,
     Users,
-    Zap,
+    Rocket,
+    BookOpen,
+    Clock,
 } from "lucide-react";
 
-// Recommended role based on assessment
-const recommendedRole = {
-    title: "Data Engineer",
-    match: 92,
-    description: "You demonstrated strong technical aptitude, excellent problem-solving skills, and clear communication abilities that align perfectly with this role.",
-    skills: [
-        { name: "SQL & Database Design", score: 88 },
-        { name: "Python Programming", score: 85 },
-        { name: "Problem Solving", score: 92 },
-        { name: "Communication", score: 78 },
-    ],
-    nextSteps: [
-        {
-            title: "Complete Training Path",
-            description: "8-week intensive program covering essential skills",
-            duration: "8 weeks",
-            icon: GraduationCap,
+import { StudentGradeCard } from "@/components/results/StudentGradeCard";
+import { ImprovementPlan } from "@/components/results/ImprovementPlan";
+import { RoleEligibilityCard } from "@/components/results/RoleEligibilityCard";
+
+import { ProjectScores, AcademicRecord, CoverLetter, QuestionnaireResponse, StudentGrade } from "@/types/assessment";
+import { getEligibleRoles, getPotentialRoles, RoleEligibility } from "@/types/roles";
+import { calculateStudentGrade } from "@/lib/grading";
+
+interface FinalAssessmentData {
+    projectScores: ProjectScores;
+    academicRecord: AcademicRecord;
+    coverLetter: CoverLetter;
+    questionnaire: QuestionnaireResponse;
+    studentGrade: StudentGrade;
+}
+
+// Default fallback data (for demo/development)
+const DEFAULT_ASSESSMENT: FinalAssessmentData = {
+    projectScores: {
+        sqlAnalytics: 75,
+        pythonDataCleaning: 80,
+        dataPipeline: 70,
+        totalScore: 74.5,
+    },
+    academicRecord: {
+        semesters: [78, 72, 75, 80, 76, 82, 79, 77],
+        backlogs: 1,
+        averagePercentage: 77.4,
+        academicScore: 6.74,
+    },
+    coverLetter: {
+        type: 'written',
+        content: 'Sample cover letter...',
+        wordCount: 350,
+        score: 20,
+    },
+    questionnaire: {
+        answers: {},
+        streamScores: {
+            dataEngineering: 10,
+            aiMl: 6,
+            biReporting: 8,
+            entryLevel: 4,
         },
-        {
-            title: "Build Portfolio Projects",
-            description: "3 real-world projects to showcase your abilities",
-            duration: "4 weeks",
-            icon: Briefcase,
+    },
+    studentGrade: {
+        grade: 'B+',
+        totalScore: 76.5,
+        breakdown: {
+            academic: 16.85,
+            projects: 37.25,
+            coverLetter: 20,
         },
-        {
-            title: "Interview Preparation",
-            description: "Mock interviews and company-specific prep",
-            duration: "2 weeks",
-            icon: Users,
-        },
-    ],
+        strengths: [
+            'Strong academic foundation',
+            'Proficient in Python',
+            'Professional communication skills',
+        ],
+        improvementAreas: [
+            {
+                area: 'SQL Skills Need Improvement',
+                priority: 'high',
+                recommendation: 'Practice on LeetCode, HackerRank, SQLZoo. Focus on JOINs, window functions, and optimization',
+                unlockedRoles: ['SQL Developer', 'BI Analyst', 'Data Quality Analyst'],
+            },
+        ],
+    },
 };
 
-const alternativeRoles = [
-    { title: "ETL Developer", match: 85 },
-    { title: "Database Developer", match: 78 },
-    { title: "Data Quality Analyst", match: 72 },
+const nextSteps = [
+    {
+        title: "Complete Training Path",
+        description: "8-week intensive program covering essential skills",
+        duration: "8 weeks",
+        icon: GraduationCap,
+    },
+    {
+        title: "Build Portfolio Projects",
+        description: "3 real-world projects to showcase your abilities",
+        duration: "4 weeks",
+        icon: Briefcase,
+    },
+    {
+        title: "Interview Preparation",
+        description: "Mock interviews and company-specific prep",
+        duration: "2 weeks",
+        icon: Users,
+    },
 ];
 
 export default function ResultsPage() {
     const router = useRouter();
     const { user } = useAuth();
     const [showContent, setShowContent] = useState(false);
+    const [assessmentData, setAssessmentData] = useState<FinalAssessmentData | null>(null);
+    const [eligibleRoles, setEligibleRoles] = useState<RoleEligibility[]>([]);
+    const [potentialRoles, setPotentialRoles] = useState<RoleEligibility[]>([]);
 
     useEffect(() => {
+        // Try to get assessment data from sessionStorage
+        const storedData = sessionStorage.getItem('finalAssessment');
+        let data: FinalAssessmentData;
+
+        if (storedData) {
+            try {
+                data = JSON.parse(storedData);
+            } catch {
+                data = DEFAULT_ASSESSMENT;
+            }
+        } else {
+            data = DEFAULT_ASSESSMENT;
+        }
+
+        setAssessmentData(data);
+
+        // Calculate role eligibility based on project scores
+        const scores = {
+            sql: data.projectScores.sqlAnalytics,
+            python: data.projectScores.pythonDataCleaning,
+            de: data.projectScores.dataPipeline,
+            academic: data.academicRecord.averagePercentage,
+        };
+
+        setEligibleRoles(getEligibleRoles(scores));
+        setPotentialRoles(getPotentialRoles(scores));
+
         // Animate in content
         const timer = setTimeout(() => setShowContent(true), 300);
         return () => clearTimeout(timer);
     }, []);
+
+    if (!assessmentData) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background">
@@ -113,107 +192,33 @@ export default function ResultsPage() {
                 <div className="text-center mb-10">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
                         <Sparkles className="w-4 h-4" />
-                        Role-Ready Verdict
+                        Assessment Complete
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-                        Congratulations, {user?.name || "there"}! 🎉
+                        Great job, {user?.name?.split(" ")[0] || "there"}! 🎉
                     </h1>
                     <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                        Based on your assessment, you&apos;re a strong candidate for data-focused roles.
+                        Based on your assessment, here's your personalized career roadmap.
                     </p>
                 </div>
 
-                {/* Primary role card */}
-                <Card className="glass border-white/30 mb-8 overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20" />
-                    <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-accent/10 rounded-full blur-2xl" />
+                {/* Student Grade Card */}
+                <section className="mb-8">
+                    <StudentGradeCard grade={assessmentData.studentGrade} />
+                </section>
 
-                    <CardHeader className="pb-2 relative">
-                        <div className="flex items-center justify-between">
-                            <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide">
-                                Best Match
-                            </span>
-                            <div className="flex items-center gap-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star
-                                        key={star}
-                                        className={`w-4 h-4 ${star <= 4 ? "text-warning fill-warning" : "text-muted"}`}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    </CardHeader>
+                {/* Improvement Plan */}
+                <section className="mb-8">
+                    <ImprovementPlan areas={assessmentData.studentGrade.improvementAreas} />
+                </section>
 
-                    <CardContent className="relative">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30">
-                                    <Database className="w-8 h-8 text-white" />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold">{recommendedRole.title}</h2>
-                                    <p className="text-muted-foreground">Recommended role for you</p>
-                                </div>
-                            </div>
-                            <div className="text-center sm:text-right">
-                                <div className="text-4xl font-bold text-gradient">{recommendedRole.match}%</div>
-                                <p className="text-sm text-muted-foreground">Match Score</p>
-                            </div>
-                        </div>
-
-                        <p className="text-muted-foreground mb-6">
-                            {recommendedRole.description}
-                        </p>
-
-                        {/* Skills breakdown */}
-                        <div className="grid gap-3 mb-6">
-                            {recommendedRole.skills.map((skill) => (
-                                <div key={skill.name} className="flex items-center gap-4">
-                                    <span className="text-sm font-medium w-40 shrink-0">{skill.name}</span>
-                                    <Progress value={skill.score} className="flex-1 h-2" />
-                                    <span className="text-sm font-semibold w-10 text-right">{skill.score}%</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <Button className="w-full sm:w-auto gap-2" size="lg" onClick={() => router.push("/training")}>
-                            Start Training Path
-                            <ArrowRight className="w-4 h-4" />
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                {/* Alternative roles */}
-                <Card className="mb-8">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <Target className="w-5 h-5 text-muted-foreground" />
-                            Alternative Matches
-                        </CardTitle>
-                        <CardDescription>Other roles that suit your profile</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-3">
-                            {alternativeRoles.map((role, index) => (
-                                <button
-                                    key={role.title}
-                                    className="flex items-center justify-between p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-muted/50 transition-all group"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                                            <span className="text-sm font-semibold text-muted-foreground">#{index + 2}</span>
-                                        </div>
-                                        <span className="font-medium">{role.title}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-semibold">{role.match}% match</span>
-                                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+                {/* Role Eligibility */}
+                <section className="mb-8">
+                    <RoleEligibilityCard
+                        eligibleRoles={eligibleRoles}
+                        potentialRoles={potentialRoles}
+                    />
+                </section>
 
                 {/* Next steps roadmap */}
                 <Card className="mb-8">
@@ -230,7 +235,7 @@ export default function ResultsPage() {
                             <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-border" />
 
                             <div className="space-y-6">
-                                {recommendedRole.nextSteps.map((step, index) => (
+                                {nextSteps.map((step, index) => (
                                     <div key={index} className="flex gap-4 relative">
                                         <div className="w-10 h-10 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center shrink-0 z-10">
                                             <step.icon className="w-5 h-5 text-primary" />
@@ -254,7 +259,7 @@ export default function ResultsPage() {
 
                 {/* CTA */}
                 <div className="text-center">
-                    <Button size="lg" className="gap-2 pulse-glow">
+                    <Button size="lg" className="gap-2 pulse-glow" onClick={() => router.push("/training")}>
                         Begin Your Journey
                         <Sparkles className="w-4 h-4" />
                     </Button>

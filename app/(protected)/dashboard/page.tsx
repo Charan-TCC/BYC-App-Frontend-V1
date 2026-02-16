@@ -32,6 +32,10 @@ export default function DashboardPage() {
         router.push("/assessment/overview");
     };
 
+    const handleStartFinalAssessment = () => {
+        router.push("/assessment/final-assessment");
+    };
+
     // Mock recent activity
     const recentActivity = [
         {
@@ -50,11 +54,11 @@ export default function DashboardPage() {
         },
     ];
 
-    // Role paths available
+    // Role paths available (from 15 approved roles)
     const rolePaths = [
-        { name: "Data Engineer", match: "Recommended" },
-        { name: "ETL Developer", match: "Good fit" },
-        { name: "Database Developer", match: "Potential" },
+        { name: "Junior Data Engineer", match: "Recommended" },
+        { name: "Business Intelligence Analyst", match: "Good fit" },
+        { name: "Data Scientist (Junior)", match: "Potential" },
     ];
 
     return (
@@ -198,7 +202,7 @@ export default function DashboardPage() {
                                 ))}
                             </ul>
                             <p className="mt-4 text-xs text-muted-foreground">
-                                + 2 more roles available: Data Quality Analyst, Cloud Data Associate
+                                + 12 more roles: ML Engineer, Analytics Engineer, SQL Developer, and more...
                             </p>
                         </CardContent>
                     </Card>
